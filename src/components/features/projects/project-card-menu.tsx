@@ -25,7 +25,7 @@ type FormValues = z.infer<typeof schema>;
 export function ProjectCardMenu({ project }: { project: Project }) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormValues>({
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { name: project.name, description: project.description ?? "" },
   });
@@ -56,7 +56,13 @@ export function ProjectCardMenu({ project }: { project: Project }) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+      <Dialog
+        open={editOpen}
+        onOpenChange={(open) => {
+          setEditOpen(open);
+          if (!open) reset({ name: project.name, description: project.description ?? "" });
+        }}
+      >
         <DialogContent>
           <DialogHeader><DialogTitle>Edit project</DialogTitle></DialogHeader>
           <form onSubmit={handleSubmit(onEditSubmit)} className="space-y-4">

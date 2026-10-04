@@ -5,7 +5,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { deleteIssue } from "@/app/(app)/projects/[key]/actions";
+import { deleteIssue } from "@/app/(app)/[workspaceSlug]/projects/[key]/actions";
 
 export function DeleteIssueDialog({
   open,

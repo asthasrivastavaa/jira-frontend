@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { apiFetch } from "@/lib/api/client";
+import { apiFetch } from "@/lib/api/server";
 import type { IssuePriority, IssueStatus, IssueType } from "@/types/issue";
 
 interface CreateIssueInput {
@@ -24,7 +24,7 @@ export async function createIssue(
       method: "POST",
       body: JSON.stringify(input),
     });
-    revalidatePath(`/projects/${projectKey}`);
+    revalidatePath("/[workspaceSlug]/projects/[key]", "page");
     return {};
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Something went wrong" };
@@ -40,8 +40,8 @@ export async function updateIssue(
 ): Promise<{ error?: string }> {
   try {
     await apiFetch(`/v1/issues/${id}`, { method: "PATCH", body: JSON.stringify(input) });
-    revalidatePath(`/projects/${projectKey}`);
-    revalidatePath(`/projects/${projectKey}/issues/${issueKey}`);
+    revalidatePath("/[workspaceSlug]/projects/[key]", "page");
+    revalidatePath("/[workspaceSlug]/projects/[key]/issues/[issueKey]", "page");
     return {};
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Something went wrong" };
@@ -51,7 +51,7 @@ export async function updateIssue(
 export async function deleteIssue(id: string, projectKey: string): Promise<{ error?: string }> {
   try {
     await apiFetch(`/v1/issues/${id}`, { method: "DELETE" });
-    revalidatePath(`/projects/${projectKey}`);
+    revalidatePath("/[workspaceSlug]/projects/[key]", "page");
     return {};
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Something went wrong" };

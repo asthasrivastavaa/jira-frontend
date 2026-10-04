@@ -17,7 +17,7 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { createProject } from "@/app/(app)/projects/actions";
+import { createProject } from "@/app/(app)/[workspaceSlug]/projects/actions";
 
 const schema = z.object({
   name: z.string().min(1, "Name is required").max(100),
@@ -27,7 +27,7 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-export function CreateProjectDialog() {
+export function CreateProjectDialog({ workspaceId }: { workspaceId: string }) {
   const [open, setOpen] = useState(false);
   const {
     register,
@@ -38,7 +38,7 @@ export function CreateProjectDialog() {
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
   async function onSubmit(values: FormValues) {
-    const result = await createProject(values);
+    const result = await createProject(workspaceId, values);
     if (result.error) {
       setError("key", { message: result.error });
       return;

@@ -13,6 +13,7 @@ export function InlineText({
   required = false,
   placeholder,
   className,
+  readOnly = false,
 }: {
   value: string;
   onSave: (value: string) => Promise<{ error?: string }>;
@@ -20,6 +21,7 @@ export function InlineText({
   required?: boolean;
   placeholder?: string;
   className?: string;
+  readOnly?: boolean;
 }) {
   const [shown, setShown] = useState(value);
   const [draft, setDraft] = useState(value);
@@ -47,6 +49,15 @@ export function InlineText({
   function cancel() {
     setDraft(shown);
     setEditing(false);
+  }
+
+  // viewers can read but not edit
+  if (readOnly) {
+    return (
+      <div className={cn("w-full py-1 whitespace-pre-wrap", !shown && "text-muted-foreground", className)}>
+        {shown || "—"}
+      </div>
+    );
   }
 
   if (editing && multiline) {

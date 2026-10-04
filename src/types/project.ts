@@ -3,6 +3,7 @@ export interface Project {
   name: string;
   key: string;
   description?: string;
+  leadId?: string | null;
   issueCounter: number;
   createdAt: string;
   updatedAt: string;

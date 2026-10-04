@@ -20,14 +20,17 @@ import type { OptionMeta } from "@/lib/issue-meta";
   onChange,
   options,
   meta,
+  disabled = false,
 }: {
   value: T;
   onChange: (value: T) => void;
   options: readonly T[];
   meta: Record<T, OptionMeta>;
+  disabled?: boolean;
 }) {
   return (
     <Select
+      disabled={disabled}
       value={value}
       onValueChange={(v) => {
         if (v) onChange(v as T);

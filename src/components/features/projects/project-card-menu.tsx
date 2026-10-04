@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
-import { updateProject, deleteProject } from "@/app/(app)/projects/actions";
+import { updateProject, deleteProject } from "@/app/(app)/[workspaceSlug]/projects/actions";
 import type { Project } from "@/types/project";
 
 const schema = z.object({

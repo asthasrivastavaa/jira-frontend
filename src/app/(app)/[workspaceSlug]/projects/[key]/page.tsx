@@ -1,7 +1,12 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { apiFetch, apiFetchPage, ApiRequestError } from "@/lib/api/client";
+import { Settings } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+import { apiFetch, apiFetchPage } from "@/lib/api/server";
+import { ApiRequestError } from "@/lib/api/client";
+import { getWorkspace } from "@/lib/workspace";
+import { can } from "@/lib/permissions";
 import { hasActiveFilters, PAGE_SIZE, parseIssueQuery, toQueryString } from "@/lib/issue-query";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -17,21 +22,22 @@ export default async function ProjectPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ key: string }>;
+  params: Promise<{ workspaceSlug: string; key: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { key } = await params;
+  const { workspaceSlug, key } = await params;
   const query = parseIssueQuery(await searchParams);
 
+  const workspace = await getWorkspace(workspaceSlug);
   let project: Project;
   try {
-    project = await apiFetch<Project>(`/v1/projects/key/${key}`);
+    project = await apiFetch<Project>(`/v1/workspaces/${workspace.id}/projects/key/${key}`);
   } catch (err) {
     if (err instanceof ApiRequestError && err.statusCode === 404) notFound();
     throw err;
   }
 
-  const basePath = `/projects/${project.key}`;
+  const basePath = `/${workspaceSlug}/projects/${project.key}`;
   const { data: issues, meta } = await apiFetchPage<Issue[]>(
     `/v1/projects/${project._id}/issues${toQueryString(query, { limit: PAGE_SIZE })}`,
   );
@@ -45,7 +51,22 @@ export default async function ProjectPage({
       <PageHeader
         title={project.name}
         description={project.description || `Project key: ${project.key}`}
-        actions={<CreateIssueDialog projectId={project._id} projectKey={project.key} />}
+        actions={
+          <>
+            {can(workspace.role, "manageProjects") && (
+              <Link
+                href={`${basePath}/settings`}
+                aria-label="Project settings"
+                className={buttonVariants({ variant: "outline", size: "icon" })}
+              >
+                <Settings className="size-4" />
+              </Link>
+            )}
+            {can(workspace.role, "editIssues") && (
+              <CreateIssueDialog projectId={project._id} projectKey={project.key} />
+            )}
+          </>
+        }
       />
       <Suspense>
         <IssueFilters />
@@ -70,7 +91,7 @@ export default async function ProjectPage({
             <IssueListHeader query={query} basePath={basePath} />
             <div className="divide-y">
               {issues.map((issue) => (
-               <IssueRow key={issue._id} issue={issue} projectKey={project.key} />
+                <IssueRow key={issue._id} issue={issue} projectKey={project.key} workspaceSlug={workspaceSlug} />
               ))}
             </div>
           </div>

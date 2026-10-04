@@ -1,21 +1,26 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { apiFetch, ApiRequestError } from "@/lib/api/client";
+import { apiFetch } from "@/lib/api/server";
+import {  ApiRequestError } from "@/lib/api/client";
 import { IssueDetailMain } from "@/components/features/issues/issue-detail-main";
 import { IssueDetailFields } from "@/components/features/issues/issue-detail-fields";
+import { getWorkspace } from "@/lib/workspace";
 import type { Issue } from "@/types/issue";
+import type { Project } from "@/types/project";
 
 export default async function IssuePage({
   params,
 }: {
-  params: Promise<{ key: string; issueKey: string }>;
+  params: Promise<{ workspaceSlug: string; key: string; issueKey: string }>;
 }) {
-  const { key, issueKey } = await params;
+  const { workspaceSlug, key, issueKey } = await params;
   const projectKey = key.toUpperCase();
 
+  const workspace = await getWorkspace(workspaceSlug);
   let issue: Issue;
   try {
-    issue = await apiFetch<Issue>(`/v1/issues/key/${issueKey}`);
+    const project = await apiFetch<Project>(`/v1/workspaces/${workspace.id}/projects/key/${projectKey}`);
+    issue = await apiFetch<Issue>(`/v1/projects/${project._id}/issues/key/${issueKey}`);
   } catch (err) {
     if (err instanceof ApiRequestError && err.statusCode === 404) notFound();
     throw err;
@@ -24,7 +29,7 @@ export default async function IssuePage({
 
   return (
     <div>
-      <Link href={`/projects/${projectKey}`} className="mb-4 inline-block text-sm text-muted-foreground hover:text-foreground">
+      <Link href={`/${workspaceSlug}/projects/${projectKey}`}className="mb-4 inline-block text-sm text-muted-foreground hover:text-foreground">
         ← {projectKey}
       </Link>
       <div className="grid gap-8 lg:grid-cols-[1fr_16rem]">

@@ -7,7 +7,7 @@ export default function NotFound() {
       title="Project not found"
       description="It may have been deleted, or the key is wrong."
       action={
-        <Link href="/projects" className="text-sm text-primary underline-offset-4 hover:underline">
+        <Link href="/"className="text-sm text-primary underline-offset-4 hover:underline">
           Back to projects
         </Link>
       }

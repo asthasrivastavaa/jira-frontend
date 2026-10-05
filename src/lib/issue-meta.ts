@@ -1,4 +1,4 @@
-import { Bookmark, Bug, ChevronDown, ChevronUp, Equal, SquareCheck, Zap } from "lucide-react";
+import { Bookmark, Bug, ChevronDown, ChevronUp, Equal, ListTree, SquareCheck, Zap } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { IssuePriority, IssueStatus, IssueType } from "@/types/issue";
 
@@ -9,6 +9,7 @@ export const ISSUE_TYPE_META: Record<IssueType, OptionMeta> = {
   bug: { label: "Bug", icon: Bug, color: "text-red-500" },
   story: { label: "Story", icon: Bookmark, color: "text-green-500" },
   epic: { label: "Epic", icon: Zap, color: "text-purple-500" },
+  subtask: { label: "Sub-task", icon: ListTree, color: "text-sky-500" },
 };
 
 export const ISSUE_PRIORITY_META: Record<IssuePriority, OptionMeta> = {

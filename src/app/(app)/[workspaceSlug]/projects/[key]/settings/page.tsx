@@ -6,6 +6,7 @@ import {
   ProjectDangerZone,
   ProjectGeneralForm,
 } from "@/components/features/settings/project-settings-forms";
+import { LabelsManager } from "@/components/features/settings/labels-manager";
 import { ApiRequestError } from "@/lib/api/client";
 import { apiFetch } from "@/lib/api/server";
 import { can } from "@/lib/permissions";
@@ -56,10 +57,10 @@ export default async function ProjectSettingsPage({
 
       <section className="rounded-lg border p-5">
         <h2 className="text-sm font-semibold">Labels</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Colored labels for this project arrive with issue labels in Phase 3.2. For now, labels are plain text on each
-          issue.
+        <p className="mt-1 mb-4 text-sm text-muted-foreground">
+          Renaming or recoloring a label updates every issue that has it. Deleting one removes it from those issues.
         </p>
+        <LabelsManager projectId={project._id} />
       </section>
 
       <ProjectDangerZone project={project} workspaceSlug={workspaceSlug} />

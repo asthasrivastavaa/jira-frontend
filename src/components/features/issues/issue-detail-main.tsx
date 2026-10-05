@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { activityKey } from "@/lib/api/activity";
 import { Button } from "@/components/ui/button";
 import { useCan } from "@/components/layout/workspace-provider";
 import { InlineText } from "./inline-text";
@@ -14,13 +16,12 @@ export function IssueDetailMain({ issue, projectKey }: { issue: Issue; projectKe
   const { workspaceSlug } = useParams<{ workspaceSlug: string }>();
   const canEdit = useCan("editIssues");
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const save = (field: "title" | "description") => (value: string) =>
-    updateIssue(issue._id, projectKey, issue.key, { [field]: value });
-
-    const saveLabels = (value: string) =>
-    updateIssue(issue._id, projectKey, issue.key, {
-      labels: [...new Set(value.split(",").map((l) => l.trim()).filter(Boolean))],
-    });
+  const queryClient = useQueryClient();
+  const save = (field: "title" | "description") => async (value: string) => {
+    const result = await updateIssue(issue._id, projectKey, issue.key, { [field]: value });
+    if (!result.error) queryClient.invalidateQueries({ queryKey: activityKey(issue._id) }); // refresh History
+    return result;
+  };
 
   return (
     <div className="min-w-0 space-y-4">
@@ -47,13 +48,6 @@ export function IssueDetailMain({ issue, projectKey }: { issue: Issue; projectKe
           multiline
           readOnly={!canEdit}
           placeholder="Add a description..."
-        />
-        <p className="text-xs font-medium text-muted-foreground uppercase">Labels</p>
-        <InlineText
-          value={(issue.labels ?? []).join(", ")}
-          onSave={saveLabels}
-          readOnly={!canEdit}
-          placeholder="Add labels, comma separated..."
         />
       </div>
       <DeleteIssueDialog

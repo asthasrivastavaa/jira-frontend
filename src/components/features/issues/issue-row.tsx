@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ISSUE_PRIORITY_META, ISSUE_STATUS_META, ISSUE_TYPE_META } from "@/lib/issue-meta";
+import { LabelPill } from "@/components/features/labels/label-pill";
+import { UserAvatar } from "@/components/shared/user-avatar";
 import { IssueRowMenu } from "./issue-row-menu";
 import type { Issue } from "@/types/issue";
 
@@ -21,19 +23,20 @@ export function IssueRow({
 
   return (
     <div className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted/50">
-      <Link href={`/${workspaceSlug}/projects/${projectKey}/issues/${issue.key}`}className="flex min-w-0 flex-1 items-center gap-3">
+      <Link
+        href={`/${workspaceSlug}/projects/${projectKey}/issues/${issue.key}`}
+        className="flex min-w-0 flex-1 items-center gap-3"
+      >
         <TypeIcon className={cn("size-4 shrink-0", type.color)} aria-label={type.label} />
         <span className="w-20 shrink-0 font-mono text-xs text-muted-foreground">{issue.key}</span>
-      <span className="flex min-w-0 flex-1 items-center gap-2">
-  <span className="truncate">{issue.title}</span>
-  {issue.labels?.map((label) => (
-    <span key={label} className="shrink-0 rounded bg-muted px-1.5 text-xs text-muted-foreground">
-      {label}
-    </span>
-  ))}
-</span>
-
+        <span className="flex min-w-0 flex-1 items-center gap-2">
+          <span className="truncate">{issue.title}</span>
+          {issue.labelIds.map((label) => (
+            <LabelPill key={label._id} label={label} />
+          ))}
+        </span>
         <PriorityIcon className={cn("size-4 shrink-0", priority.color)} aria-label={priority.label} />
+        <UserAvatar user={issue.assigneeId} />
         <span className={cn("w-24 rounded-full px-2 py-0.5 text-center text-xs font-medium", status.badge)}>
           {status.label}
         </span>
@@ -42,4 +45,3 @@ export function IssueRow({
     </div>
   );
 }
-

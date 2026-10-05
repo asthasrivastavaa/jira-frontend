@@ -10,9 +10,16 @@ export interface IssueQuery {
   type?: IssueType;
   priority?: IssuePriority;
   q?: string;
+  /** "me" | "none" | a user id */
+  assignee?: string;
+  /** a label id */
+  label?: string;
   sort: IssueSort;
   page: number;
 }
+
+const ASSIGNEE_FILTER = /^(me|none|[a-f\d]{24})$/i;
+const OBJECT_ID = /^[a-f\d]{24}$/i;
 
 type RawParams = Record<string, string | string[] | undefined>;
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
@@ -26,6 +33,8 @@ export function parseIssueQuery(raw: RawParams): IssueQuery {
     type: pick(first(raw.type), ISSUE_TYPES),
     priority: pick(first(raw.priority), ISSUE_PRIORITIES),
     q: first(raw.q)?.trim().slice(0, 100) || undefined,
+    assignee: ASSIGNEE_FILTER.test(first(raw.assignee) ?? "") ? first(raw.assignee) : undefined,
+    label: OBJECT_ID.test(first(raw.label) ?? "") ? first(raw.label) : undefined,
     sort: pick(first(raw.sort), ISSUE_SORTS) ?? "-number",
     page: Number.isFinite(page) && page > 0 ? page : 1,
   };
@@ -45,4 +54,5 @@ export function toQueryString(
   return s ? `?${s}` : "";
 }
 
-export const hasActiveFilters = (q: IssueQuery) => Boolean(q.status || q.type || q.priority || q.q);
+export const hasActiveFilters = (q: IssueQuery) =>
+  Boolean(q.status || q.type || q.priority || q.q || q.assignee || q.label);

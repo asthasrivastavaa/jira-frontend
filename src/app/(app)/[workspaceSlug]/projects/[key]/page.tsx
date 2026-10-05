@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Settings } from "lucide-react";
+import { ProjectViewNav } from "@/components/features/projects/project-view-nav";
 import { buttonVariants } from "@/components/ui/button";
 import { apiFetch, apiFetchPage } from "@/lib/api/server";
 import { ApiRequestError } from "@/lib/api/client";
@@ -53,6 +54,7 @@ export default async function ProjectPage({
         description={project.description || `Project key: ${project.key}`}
         actions={
           <>
+            <ProjectViewNav basePath={basePath} />
             {can(workspace.role, "manageProjects") && (
               <Link
                 href={`${basePath}/settings`}
@@ -63,13 +65,13 @@ export default async function ProjectPage({
               </Link>
             )}
             {can(workspace.role, "editIssues") && (
-              <CreateIssueDialog projectId={project._id} projectKey={project.key} />
+              <CreateIssueDialog projectId={project._id} projectKey={project.key} shortcut />
             )}
           </>
         }
       />
       <Suspense>
-        <IssueFilters />
+        <IssueFilters projectId={project._id} />
       </Suspense>
       {issues.length === 0 ? (
         hasActiveFilters(query) ? (

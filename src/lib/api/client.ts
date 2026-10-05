@@ -69,3 +69,13 @@ export async function apiFetchPage<T>(path: string, options?: RequestInit): Prom
   return { data: json.data, meta: json.meta as PageMeta };
 }
 
+/** Cursor pagination: meta is `{ nextCursor }` (null on the last page). */
+export interface CursorMeta {
+  nextCursor: string | null;
+}
+
+export async function apiFetchCursor<T>(path: string, options?: RequestInit): Promise<{ data: T; meta: CursorMeta }> {
+  const json = await request<T>(path, options);
+  return { data: json.data, meta: json.meta as CursorMeta };
+}
+

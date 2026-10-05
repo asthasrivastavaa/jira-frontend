@@ -67,6 +67,10 @@ export const changeMemberRole = (workspaceId: string, userId: string, role: Invi
     body: JSON.stringify({ role }),
   });
 
+export const membersKey = (workspaceId: string) => ["members", workspaceId] as const;
+
+export const listMembers = (workspaceId: string) => apiFetch<Member[]>(`/v1/workspaces/${workspaceId}/members`);
+
 export const removeMember = (workspaceId: string, userId: string) =>
   apiFetch<{ userId: string }>(`/v1/workspaces/${workspaceId}/members/${userId}`, { method: "DELETE" });
 

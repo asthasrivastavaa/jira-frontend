@@ -5,7 +5,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { UserRound } from "lucide-react";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useLabels } from "@/hooks/use-project-data";
 import { OptionLabel } from "./enum-select";
 import { ISSUE_PRIORITIES, ISSUE_STATUSES, ISSUE_TYPES } from "@/types/issue";
 import { ISSUE_PRIORITY_META, ISSUE_STATUS_META, ISSUE_TYPE_META } from "@/lib/issue-meta";
@@ -43,7 +45,8 @@ function FilterSelect<T extends string>({
   );
 }
 
-export function IssueFilters() {
+export function IssueFilters({ projectId }: { projectId: string }) {
+  const { data: labels = [] } = useLabels(projectId);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -70,10 +73,22 @@ export function IssueFilters() {
   }, [debouncedQ, searchParams, update]);
 
   const status = searchParams.get("status");
-  const active = ["status", "type", "priority", "q"].some((k) => searchParams.has(k));
+  const mine = searchParams.get("assignee") === "me";
+  const label = searchParams.get("label");
+  const active = ["status", "type", "priority", "q", "assignee", "label"].some((k) => searchParams.has(k));
 
   return (
     <div className="mb-4 flex flex-wrap items-center gap-2">
+      <Button
+        size="sm"
+        variant={mine ? "default" : "outline"}
+        aria-pressed={mine}
+        onClick={() => update({ assignee: mine ? undefined : "me" })}
+      >
+        <UserRound className="size-4" />
+        My issues
+      </Button>
+      <span className="mx-1 h-5 w-px bg-border" aria-hidden />
       <Button size="sm" variant={!status ? "default" : "outline"} onClick={() => update({ status: undefined })}>
         All
       </Button>
@@ -96,6 +111,27 @@ export function IssueFilters() {
         options={ISSUE_PRIORITIES}
         meta={ISSUE_PRIORITY_META}
       />
+      {labels.length > 0 && (
+        <Select
+          value={label ?? "all"}
+          onValueChange={(v) => update({ label: !v || v === "all" ? undefined : v })}
+        >
+          <SelectTrigger size="sm" className="w-36">
+            <SelectValue>
+              {(v: string) => (v === "all" ? "All labels" : (labels.find((l) => l._id === v)?.name ?? "Label"))}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All labels</SelectItem>
+            {labels.map((l) => (
+              <SelectItem key={l._id} value={l._id}>
+                <span className="size-2.5 rounded-full" style={{ backgroundColor: l.color }} />
+                {l.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
       <Input
         className="h-7 w-48"
         placeholder="Search issues..."

@@ -4,6 +4,8 @@ import { apiFetch } from "@/lib/api/server";
 import {  ApiRequestError } from "@/lib/api/client";
 import { IssueDetailMain } from "@/components/features/issues/issue-detail-main";
 import { IssueDetailFields } from "@/components/features/issues/issue-detail-fields";
+import { IssueTabs } from "@/components/features/issues/issue-tabs";
+import { ChildIssues } from "@/components/features/issues/child-issues";
 import { getWorkspace } from "@/lib/workspace";
 import type { Issue } from "@/types/issue";
 import type { Project } from "@/types/project";
@@ -33,7 +35,12 @@ export default async function IssuePage({
         ← {projectKey}
       </Link>
       <div className="grid gap-8 lg:grid-cols-[1fr_16rem]">
-        <IssueDetailMain issue={issue} projectKey={projectKey} />
+        <div className="min-w-0">
+          <IssueDetailMain issue={issue} projectKey={projectKey} />
+          {/* sub-tasks are the bottom of the tree: they have no children */}
+          {issue.type !== "subtask" && <ChildIssues issue={issue} projectKey={projectKey} />}
+          <IssueTabs issueId={issue._id} />
+        </div>
         <aside className="rounded-lg bg-muted/40 p-4">
           <IssueDetailFields issue={issue} projectKey={projectKey} />
         </aside>
